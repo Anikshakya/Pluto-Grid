@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "424888225783",
+    "project_id": "pluto-grid",
+    "storage_bucket": "pluto-grid.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424888225783:android:86a1cf6f33b7ceb77c68f2",
+        "android_client_info": {
+          "package_name": "com.example.grid_pluto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "424888225783-1ki1q6lckkjm9fvobodmovi2ij08qj0h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2QeAhgku7Sv5NYk2N9OzD_jhPn6fufiM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "424888225783-1ki1q6lckkjm9fvobodmovi2ij08qj0h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
