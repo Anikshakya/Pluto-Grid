@@ -10,13 +10,23 @@ class Grid extends StatefulWidget {
 
 class _GridState extends State<Grid> {
 
+  var age;
+  var id;
+  var name;
+  var joinedDate;
+  var time;
+  var role;
+  var colors;
+  var newId;
+  var  addRowCheck = '';
+
   //Columns
   final List<PlutoColumn> columns = <PlutoColumn>[
     PlutoColumn(
       title: 'Id',
       field: 'id',
       type: PlutoColumnType.number(),
-      readOnly: true,//make the colum not editable
+      // readOnly: true,//make the colum not editable
       sort: PlutoColumnSort.ascending,//sort
       enableRowDrag: true,//makes row dragable
       enableRowChecked: true,//checkbox
@@ -72,7 +82,7 @@ class _GridState extends State<Grid> {
     PlutoColumn(
       title: 'Colors',
       field: 'colors',
-      type: PlutoColumnType.select(<String>['red', 'blue', 'green'], enableColumnFilter: false,),
+      type: PlutoColumnType.select(<String>['red', 'blue', 'green', 'yellow'], enableColumnFilter: false,),
       renderer: (rendererContext) {
         Color textColor = Colors.black;
         if (rendererContext.cell.value == 'red') {
@@ -96,28 +106,29 @@ class _GridState extends State<Grid> {
 
   //Rows
   final List<PlutoRow> rows = [
-    PlutoRow(
-      cells: {
-        'id': PlutoCell(value: '0'),
-        'name': PlutoCell(value: 'Anik'),
-        'age': PlutoCell(value: 22),
-        'time': PlutoCell(value: '08:00'),
-        'role': PlutoCell(value: 'Programmer'),
-        'joined date': PlutoCell(value: '2021-01-01'),
-        'colors': PlutoCell(value: 'green'),
-      },
-    ),
-    PlutoRow(
-      cells: {
-        'id': PlutoCell(value: '1'),
-        'name': PlutoCell(value: 'Rilon'),
-        'age': PlutoCell(value: 23),
-        'time': PlutoCell(value: '02:00'),
-        'role': PlutoCell(value: 'HouseWife'),
-        'joined date': PlutoCell(value: '2021-01-01'),
-        'colors': PlutoCell(value: 'blue'),
-      },
-    ),
+    //Static Data
+    // PlutoRow(
+    //   cells: {
+    //     'id': PlutoCell(value: '0'),
+    //     'name': PlutoCell(value: 'Anik'),
+    //     'age': PlutoCell(value: 22),
+    //     'time': PlutoCell(value: '08:00'),
+    //     'role': PlutoCell(value: 'Programmer'),
+    //     'joined date': PlutoCell(value: '2021-01-01'),
+    //     'colors': PlutoCell(value: 'green'),
+    //   },
+    // ),
+    // PlutoRow(
+    //   cells: {
+    //     'id': PlutoCell(value: '1'),
+    //     'name': PlutoCell(value: 'Rilon'),
+    //     'age': PlutoCell(value: 23),
+    //     'time': PlutoCell(value: '02:00'),
+    //     'role': PlutoCell(value: 'HouseWife'),
+    //     'joined date': PlutoCell(value: '2021-01-01'),
+    //     'colors': PlutoCell(value: 'blue'),
+    //   },
+    // ),
   ];
 
   //ColumnGroups
@@ -129,9 +140,11 @@ class _GridState extends State<Grid> {
     ]),
   ];
 
-  late final PlutoGridStateManager stateManager;
-
-  var age;
+  static late PlutoGridStateManager stateManager;
+  @override
+  void initState() {
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -143,10 +156,6 @@ class _GridState extends State<Grid> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButton(
-                    onPressed: addData,
-                     child: const Text("SAVE")
-                  ),
                   //Add Column
                   ElevatedButton(
                     onPressed: (){
@@ -166,43 +175,54 @@ class _GridState extends State<Grid> {
                   //Add Row
                   ElevatedButton(
                     onPressed: (){
-                      final int lastIndex = stateManager.refRows.originalList.length;
-                      stateManager.insertRows(0, [
+                      int index = 0;
+                      setState(() {
+                        index= index + 1;
+                        newId = rows.length + 1;
+                        addRowCheck = 'addedRow';
+                      });
+                      stateManager.insertRows(index, [
                         PlutoRow(
                         cells: {
-                          'id': PlutoCell(value: 'id $lastIndex'),
-                          'name': PlutoCell(value: 'name $lastIndex'),
-                          'age': PlutoCell(value:  lastIndex),
-                          'time': PlutoCell(value: 'time $lastIndex'),
-                          'role': PlutoCell(value: 'role $lastIndex'),
-                          'joined date': PlutoCell(value: 'joined date $lastIndex'),
-                          'colors': PlutoCell(value: 'colors $lastIndex'),
+                          'id': PlutoCell(value: newId),
+                          'name': PlutoCell(value: ''),
+                          'age': PlutoCell(value:  null),
+                          'time': PlutoCell(value: ''),
+                          'role': PlutoCell(value: ''),
+                          'joined date': PlutoCell(value: ''),
+                          'colors': PlutoCell(value: ''),
                         },
                       ),
                     ]);
                     },
                      child: const Text("Add row")
                   ),
+
+                  //Remove Row
+                  ElevatedButton(
+                    onPressed: (){
+                      stateManager.removeCurrentRow();
+                      setState(() {
+                        addRowCheck = 'removedRow';
+                      });
+                    },
+                     child: const Text("Remove Row")
+                  ),
+
+                  //Clear Button
+                  ElevatedButton(
+                    onPressed: (){
+                      // removeAllData(); //This will Clear all the data in firesotre
+                      setState((){
+                        rows.clear();
+                      });
+                    },
+                     child: const Text("Clear"),
+                  ),
                 ],
               ),
             ),
-            Expanded(
-              child: PlutoGrid(
-                columns: columns,
-                rows: rows,
-                columnGroups: columnGroups,
-                onLoaded: (PlutoGridOnLoadedEvent event) {
-                  stateManager = event.stateManager;
-                },
-                onChanged: (PlutoGridOnChangedEvent event) {
-                  setState(() {
-                    age = event.value;
-                  });
-                  print(event);
-                },
-                configuration: const PlutoGridConfiguration(),
-              ),
-            ),
+           
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance.collection("user_data").snapshots(),
@@ -212,7 +232,7 @@ class _GridState extends State<Grid> {
                       height:MediaQuery.of(context).size.height - kToolbarHeight,
                       child: const Center( child: CircularProgressIndicator(),),
                     );
-                  } else if (snapshot.connectionState ==ConnectionState.waiting) {
+                  } else if (snapshot.connectionState == ConnectionState.waiting) {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height - kToolbarHeight,
                       child: const Center(child: CircularProgressIndicator(),
@@ -220,21 +240,63 @@ class _GridState extends State<Grid> {
                     );
                   } else{
                     List<QueryDocumentSnapshot<Object?>> userData = snapshot.data!.docs;
-                  for(int i =0; i<userData.length; i++){
-                    rows.add(
-                    PlutoRow(
-                      cells: {
-                        'id': PlutoCell(value: userData[i]['id']),
-                        'name': PlutoCell(value: userData[i]['name']),
-                        'age': PlutoCell(value: userData[i]['age']),
-                        'time': PlutoCell(value: userData[i]['time']),
-                        'role': PlutoCell(value: userData[i]['role']),
-                        'joined date': PlutoCell(value: userData[i]['joined_date']),
-                        'colors': PlutoCell(value: userData[i]['colors']),
-                      },
-                    ),
-                  );
-                  }
+                    for(int i =0; i<userData.length; i++){
+                      age = userData[i]['age'];
+                      name = userData[i]['name'];
+                      time = userData[i]['time'];
+                      joinedDate = userData[i]['joined_date'];
+                      role = userData[i]['role'];
+                      colors = userData[i]['colors'];
+                      if(addRowCheck == ''){
+                        if(userData.length != rows.length){
+                          rows.add(
+                            PlutoRow(
+                              cells: {
+                                'id': PlutoCell(value: userData[i]['id']),
+                                'name': PlutoCell(value: userData[i]['name']),
+                                'age': PlutoCell(value: userData[i]['age']),
+                                'time': PlutoCell(value: userData[i]['time']),
+                                'role': PlutoCell(value: userData[i]['role']),
+                                'joined date': PlutoCell(value: userData[i]['joined_date']),
+                                'colors': PlutoCell(value: userData[i]['colors']),
+                              },
+                            ),
+                          );
+                        }
+                      }else if(addRowCheck == 'addedRow'){
+                        if(userData.length != rows.length -1){
+                          rows.add(
+                            PlutoRow(
+                              cells: {
+                                'id': PlutoCell(value: userData[i]['id']),
+                                'name': PlutoCell(value: userData[i]['name']),
+                                'age': PlutoCell(value: userData[i]['age']),
+                                'time': PlutoCell(value: userData[i]['time']),
+                                'role': PlutoCell(value: userData[i]['role']),
+                                'joined date': PlutoCell(value: userData[i]['joined_date']),
+                                'colors': PlutoCell(value: userData[i]['colors']),
+                              },
+                            ),
+                          );
+                        }
+                      } else if(addRowCheck == 'removedRow'){
+                        if(userData.length != rows.length){
+                          rows.add(
+                            PlutoRow(
+                              cells: {
+                                'id': PlutoCell(value: userData[i]['id']),
+                                'name': PlutoCell(value: userData[i]['name']),
+                                'age': PlutoCell(value: userData[i]['age']),
+                                'time': PlutoCell(value: userData[i]['time']),
+                                'role': PlutoCell(value: userData[i]['role']),
+                                'joined date': PlutoCell(value: userData[i]['joined_date']),
+                                'colors': PlutoCell(value: userData[i]['colors']),
+                              },
+                            ),
+                          );
+                        }
+                      }
+                    }
                     return Container(
                       child: PlutoGrid(
                         columns: columns,
@@ -245,8 +307,39 @@ class _GridState extends State<Grid> {
                         },
                         onChanged: (PlutoGridOnChangedEvent event) {
                           setState(() {
-                            age = event.value;
-                          });print(event);
+                            //To check which field value is changed
+                            if(event.column!.field == 'age'){
+                              age = event.value;
+                            }else if(event.column!.field == 'name'){
+                              name = event.value;
+                            }else if(event.column!.field == 'time'){
+                              time = event.value;
+                            }else if(event.column!.field == 'role'){
+                              role = event.value;
+                            }else if(event.column!.field == 'joined date'){
+                              joinedDate = event.value;
+                            } else if(event.column!.field == 'colors'){
+                              colors = event.value;
+                            }
+                            if(checkId(userData, event) == rows[event.rowIdx!].cells['id']!.value){
+                              var dataId = checkId(userData, event);
+                              update(dataId);
+                            }else{
+                               setState(() {
+                                var data ={
+                                  'id':newId,
+                                  'name':'',
+                                  'age':null,
+                                  'joined_date':'',
+                                  'time':'',
+                                  'role':'',
+                                  'colors':''
+                                };
+                                addData(data);
+                              });
+                            }
+                          });
+                          print(event);
                         },
                         configuration: const PlutoGridConfiguration(),
                       ),
@@ -261,49 +354,59 @@ class _GridState extends State<Grid> {
     );
   }
 
-  addData() async{
+  addData(data) async{
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const Center(child: CircularProgressIndicator(),
       ),
     );
-    var docId =FirebaseFirestore.instance.collection("user_data").doc().id;
-    DocumentReference documentReferencer = FirebaseFirestore.instance.collection("user_data").doc(docId);
-    Map<String, dynamic> data = {
-      'id': "91",
-      'name': "Super Man",
-      'age': age,
-      'joined_date':"2052-11-02",
-      'time' : '09:00',
-      'role':'SuperHuman',
-      'colors':'red',
-    };
+    DocumentReference documentReferencer = FirebaseFirestore.instance.collection("user_data").doc(data['id'].toString());
     await documentReferencer.set(data).then((value) => Navigator.pop(context));      
   }
 
-  update() async{
+  update(dataId) async{
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const Center(child: CircularProgressIndicator(),
       ),
     );
-    var docId =FirebaseFirestore.instance.collection("user_data").doc().id;
-    DocumentReference documentReferencer = FirebaseFirestore.instance.collection("user_data").doc(docId);
+    rows.clear();
+    DocumentReference documentReferencer = FirebaseFirestore.instance.collection("user_data").doc(dataId.toString());
     Map<String, dynamic> data = {
-      'id': "921",
-      'name': "Green Goblin",
+      'id': dataId,
+      'name': name,
       'age': age,
-      'joined_date':"2002-11-02",
-      'time' : '09:00',
-      'role':'Villian',
-      'colors':'green',
+      'joined_date': joinedDate,
+      'time' : time,
+      'role': role,
+      'colors': colors,
     };
-    await documentReferencer.update(data).then((value) => Navigator.pop(context)); 
+    await documentReferencer.update(data).then((value){
+     data;
+      Navigator.pop(context);
+    } ); 
   }
 
-  searchIdFromIndex(){
+  //This function checks is the firebase data id and edited item id is equal or not and return the firebase id
+  checkId(fireStoreDataId, event){
+    var id;
+    for(int i = 0; i< fireStoreDataId.length; i++){
+      if(rows[event.rowIdx!].cells['id']!.value == fireStoreDataId[i]['id']){
+        setState(() {
+          id = fireStoreDataId[i]['id'];
+        });
+      }
+    }
+    return id;
+  }
 
+  removeAllData() async{
+    var snapshots = await FirebaseFirestore.instance.collection('user_data').get();//fetches the collection
+    for (DocumentSnapshot ds in snapshots.docs) {
+      ds.reference.delete();
+      }
+      await FirebaseFirestore.instance.batch().commit();
   }
 }
